@@ -3,6 +3,7 @@ import 'package:flutter_tags/src/suggestions.dart';
 import 'package:flutter_tags/src/text_util.dart';
 
 /// Callback
+typedef void OnPressed(String tags);
 typedef void OnDelete(String tags);
 typedef void OnInsert(String tags);
 
@@ -47,6 +48,7 @@ class InputTags extends StatefulWidget {
       this.suggestionsList,
       this.onDelete,
       this.onInsert,
+      this.onPressed,
       this.popupMenuBuilder,
       this.popupMenuOnSelected,
       Key key})
@@ -114,7 +116,7 @@ class InputTags extends StatefulWidget {
   final double fontSize;
 
   /// custom Icon close
-  final Icon icon;
+  final IconData icon;
 
   /// icon size of Icon close
   final double iconSize;
@@ -165,6 +167,9 @@ class InputTags extends StatefulWidget {
   /// On Selected Item
   /// (int id, String tag)
   final PopupMenuOnSelected popupMenuOnSelected;
+
+  /// callback
+  final OnPressed onPressed;
 
   @override
   _InputTagsState createState() => _InputTagsState();
@@ -424,24 +429,27 @@ class _InputTagsState extends State<InputTags> {
       return Flexible(
           flex: (widget.symmetry) ? 1 : width.round(),
           child: GestureDetector(
+            onTap: () {
+              if (widget.onPressed != null) widget.onPressed(tag);
+            },
             onTapDown: (details) {
               _tapPosition = details.globalPosition;
             },
             onLongPress: () {
-              showMenu(
-                      semanticLabel: tag,
-                      items: widget.popupMenuBuilder(tag) ?? [],
-                      context: context,
-                      position: RelativeRect.fromRect(
-                          _tapPosition & Size(40, 40),
-                          Offset.zero &
-                              overlay
-                                  .size) // & RelativeRect.fromLTRB(65.0, 40.0, 0.0, 0.0),
-                      )
-                  .then((value) {
-                if (widget.popupMenuOnSelected != null)
-                  widget.popupMenuOnSelected(value, tag);
-              });
+              // showMenu(
+              //         semanticLabel: tag,
+              //         items: widget.popupMenuBuilder(tag) ?? [],
+              //         context: context,
+              //         position: RelativeRect.fromRect(
+              //             _tapPosition & Size(40, 40),
+              //             Offset.zero &
+              //                 overlay
+              //                     .size) // & RelativeRect.fromLTRB(65.0, 40.0, 0.0, 0.0),
+              //         )
+              //     .then((value) {
+              //   if (widget.popupMenuOnSelected != null)
+              //     widget.popupMenuOnSelected(value, tag);
+              // });
             },
             child: widget.popupMenuBuilder == null
                 ? Tooltip(
